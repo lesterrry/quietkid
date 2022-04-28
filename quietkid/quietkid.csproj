@@ -4,6 +4,36 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
+	  <Version>4.0.0-beta</Version>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="KeystrokeAPI" Version="1.0.6.4" />
+    <PackageReference Include="Telegram.Bot" Version="14.6.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="ASCII.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ASCII.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Sounds.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Sounds.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="ASCII.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>ASCII.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Sounds.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Sounds.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
 
 </Project>

