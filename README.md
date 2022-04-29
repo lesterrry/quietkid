@@ -20,6 +20,26 @@ Quietkid allows you to control remote PCs via Telegram bot. It provides followin
 - Playing built-in sounds
 - Keyboard activity logging & sending
 - Self-deletion on command
+### Commands
+- `/plain` - place text once
+- `/rep` - place text multiple times
+- `/tab` - send `TAB` click
+- `/alttab` - send `ALT` + `TAB` click
+- `/wipe` select all text in current field & delete it
+- `/close` - close current window
+- `/proc` - enter Process mode, after which all unknown commands will be treated as processes to launch (e.g. `notepad`)
+- `/shell` - enter Shell mode, after which all unknown commands will be treated as shell commands to execute
+- `/finder` - enter Finder mode (additional commands afterwards: `B` to go back, `S` to set drive, `U` to go to user home dir)
+- `/webload` - enter Webload mode, after which all unknown commands will be treated as links to go to
+- `/ascii` - enter Ascii mode, after which all unknown commands will be treated as known Ascii presets to print
+- `/sound` - enter Sound mode, after which all unknown commands will be treated as known sound presets to play
+- `/volup` - set system volume to max
+- `/hook` - toggle keyboard actions recording
+- `/hookdump` - print all recorded keyboard actions
+- `/basic` - print basic info about the software
+- `/kill` - Exit program
+- `/destruct` - Exit & self-delete\
+Multiple commands may be executed one by one if divided by semicolon (e.g. `/proc;notepad;/ascii;shrek` will open notepad and print beautiful shrek in it)
 ## How to use
 1. Modify 'Secure.cs' contents
 2. Build .NET app
