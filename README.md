@@ -12,7 +12,7 @@ __THIS SOFTWARE IS A PROOF OF CONCEPT AND IS INTENDED FOR EDUCATIONAL PURPOSES O
 ## What is it
 Quietkid allows you to control remote PCs via Telegram bot. It provides following features:
 - Hidden background activity
-- Pressing keys & pasting text
+- Pressing keys & pasting text ([guidelines](https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.sendkeys?redirectedfrom=MSDN&view=net-5.0))
 - Launching processes & shell scripts
 - Looking through files, downloading them straight into the Telegram chat
 - Opening websites
